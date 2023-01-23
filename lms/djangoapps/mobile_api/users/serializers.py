@@ -133,6 +133,8 @@ class UserSerializer(serializers.ModelSerializer):
     """
     name = serializers.ReadOnlyField(source='profile.name')
     course_enrollments = serializers.SerializerMethodField()
+    dob = serializers.SerializerMethodField()
+    yob = serializers.SerializerMethodField()
 
     def get_course_enrollments(self, model):
         request = self.context.get('request')
@@ -144,9 +146,21 @@ class UserSerializer(serializers.ModelSerializer):
             request=request
         )
 
+    def get_dob(self, model):
+        try:
+            return model.ttb_profile.dob.strftime("%Y-%m-%d")
+        except Exception:
+            return None
+
+    def get_yob(self, model):
+        try:
+            return model.ttb_profile.yob
+        except Exception:
+            return None
+
     class Meta:
         model = User
-        fields = ('id', 'username', 'email', 'name', 'course_enrollments')
+        fields = ('id', 'username', 'email', 'name', 'course_enrollments', 'dob', 'yob')
         lookup_field = 'username'
         # For disambiguating within the drf-yasg swagger schema
         ref_name = 'mobile_api.User'
